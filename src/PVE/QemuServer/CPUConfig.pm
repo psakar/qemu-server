@@ -1197,8 +1197,8 @@ sub get_hw_capabilities {
     # TODO: Find better location than /run/qemu-server/
     my $filename = '/run/qemu-server/host-hw-capabilities.json';
     if (!-e $filename) {
-        die "$filename does not exist. Please check the status of query-machine-capabilities: "
-            . "systemctl status query-machine-capabilities\n";
+        die "$filename does not exist. Please check the status of the "
+            . "pve-query-machine-capabilities service\n";
     }
     my $json_text = PVE::Tools::file_get_contents($filename);
     ($json_text) = $json_text =~ /(.*)/; # untaint json text
