@@ -27,7 +27,9 @@ case "$1" in
         install -d -m 0750 -o root -g www-data /run/qemu-server /run/qemu-server/efidisk
         log_action_begin_msg "Querying machine capabilities"
         $HELPER
-        log_action_end_msg $?
+        status=$?
+        log_action_end_msg $status
+        exit $status
         ;;
     stop)
         ;;
