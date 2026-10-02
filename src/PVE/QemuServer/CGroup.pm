@@ -3,9 +3,7 @@ package PVE::QemuServer::CGroup;
 use strict;
 use warnings;
 
-use Net::DBus qw(dbus_uint64 dbus_boolean);
-
-use PVE::Systemd;
+use PVE::InitSystem;
 use base('PVE::CGroup');
 
 sub get_subdir {
@@ -19,43 +17,29 @@ sub scope {
     return $self->{vmid} . '.scope';
 }
 
-my sub set_unit_properties : prototype($$) {
-    my ($self, $properties) = @_;
-
-    PVE::Systemd::systemd_call(sub {
-        my ($if, $reactor, $finish_cb) = @_;
-        $if->SetUnitProperties($self->scope(), dbus_boolean(1), $properties);
-        return 1;
-    });
-}
-
 # Update the 'cpulimit' of VM.
-# Note that this is now the systemd API and we expect a value for `CPUQuota` as
-# set on VM startup, rather than cgroup values.
+# Note that this is the init system's scope API and we expect a value for
+# `CPUQuota` (percent of one CPU) as set on VM startup, rather than cgroup
+# values. undef removes the limit.
 sub change_cpu_quota {
     my ($self, $quota, $period) = @_;
 
     die "period is not controlled for VMs\n" if defined($period);
 
-    $quota = dbus_uint64(defined($quota) ? ($quota * 10_000) : -1);
-    set_unit_properties($self, [[CPUQuotaPerSecUSec => $quota]]);
+    PVE::InitSystem::set_scope_properties($self->scope(), CPUQuota => $quota);
 
     return;
 }
 
 # Update the 'cpuunits' of a VM.
-# Note that this is now the systemd API and we expect a value for `CPUQuota` as
-# set on VM startup, rather than cgroup values.
+# Note that this is the init system's scope API and we expect a value for
+# `CPUWeight`/`CPUShares` as set on VM startup, rather than cgroup values. undef
+# resets it to the default.
 sub change_cpu_shares {
     my ($self, $shares) = @_;
 
-    $shares //= -1;
-
-    if (PVE::CGroup::cgroup_mode() == 2) {
-        set_unit_properties($self, [[CPUWeight => dbus_uint64($shares)]]);
-    } else {
-        set_unit_properties($self, [[CPUShares => dbus_uint64($shares)]]);
-    }
+    my $property = PVE::CGroup::cgroup_mode() == 2 ? 'CPUWeight' : 'CPUShares';
+    PVE::InitSystem::set_scope_properties($self->scope(), $property => $shares);
 
     return;
 }
