@@ -29,4 +29,10 @@ ifeq ($(PVE_INIT_SYSTEM),lsbservice)
 override_dh_installinit:
 	dh_installinit -pqemu-server --name qmeventd
 	dh_installinit -pqemu-server --name pve-query-machine-capabilities --no-stop-on-upgrade
+
+override_dh_lintian:
+	dh_lintian
+	install -d debian/qemu-server/usr/share/lintian/overrides
+	cat debian/qemu-server.lintian-overrides.lsbservice \
+	    >>debian/qemu-server/usr/share/lintian/overrides/qemu-server
 endif

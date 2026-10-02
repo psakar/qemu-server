@@ -1,0 +1,4 @@
+# Only installed by the pkg.qemu-server.lsbservice build (see debian/rules), which is
+# meant for systemd-free derivatives like Devuan: there are intentionally no
+# systemd units for the init scripts, systemd users get the default build.
+qemu-server: missing-systemd-service-for-init.d-script
