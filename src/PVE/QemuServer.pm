@@ -37,6 +37,7 @@ use PVE::Mapping::PCI;
 use PVE::Mapping::USB;
 use PVE::Network::SDN::Vnets;
 use PVE::INotify;
+use PVE::InitSystem;
 use PVE::JSONSchema qw(get_standard_option parse_property_string);
 use PVE::ProcFSTools;
 use PVE::PBSClient;
@@ -5698,18 +5699,14 @@ sub vm_start_nolock {
         die $err;
     }
 
-    my %silence_std_outs = (outfunc => sub { }, errfunc => sub { });
-    eval { # See systemd GH #39141, need to reset failed PartOf units too, or scope might be blocked
-        run_command(
-            ['/bin/systemctl', 'reset-failed', "pve-dbus-vmstate\@$vmid.service"],
-            %silence_std_outs,
-        );
-    };
-    eval { run_command(['/bin/systemctl', 'reset-failed', "$vmid.scope"], %silence_std_outs) };
-    eval { run_command(['/bin/systemctl', 'stop', "$vmid.scope"], %silence_std_outs) };
+    # See systemd GH #39141, need to reset failed PartOf units too, or scope might be blocked
+    PVE::InitSystem::reset_failed("pve-dbus-vmstate\@$vmid.service", "$vmid.scope");
+    # Only SIGTERM, without waiting here, like the scope's SendSIGKILL=0 and infinite
+    # TimeoutStopUSec do with systemd.
+    eval { PVE::InitSystem::stop_scope("$vmid.scope", kill => 0, timeout => 0) };
     # Issues with the above 'stop' not being fully completed are extremely rare, a very low
     # timeout should be more than enough here...
-    PVE::Systemd::wait_for_unit_removed("$vmid.scope", 20);
+    PVE::InitSystem::wait_for_unit_removed("$vmid.scope", 20);
 
     my $cpuunits = PVE::CGroup::clamp_cpu_shares($conf->{cpuunits});
 
