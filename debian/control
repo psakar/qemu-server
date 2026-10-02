@@ -32,6 +32,7 @@ Homepage: https://www.proxmox.com
 
 Package: qemu-server
 Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
 Depends: conntrack,
          dbus,
          genisoimage,
