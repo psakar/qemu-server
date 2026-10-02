@@ -9,5 +9,24 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# The pkg.qemu-server.lsbservice build profile is for Devuan and other
+# systemd-free Debian derivatives (see pve-common's and pve-manager's
+# pkg.*.lsbservice profiles): it installs LSB init scripts for qmeventd and
+# pve-query-machine-capabilities instead of the systemd units, and no
+# pve-dbus-vmstate@ unit, as the helper is started directly without it. To build
+# this variant, run:
+#   dpkg-buildpackage -b -us -uc -Ppkg.qemu-server.lsbservice
+ifneq (,$(filter pkg.qemu-server.lsbservice,$(DEB_BUILD_PROFILES)))
+export PVE_INIT_SYSTEM = lsbservice
+else
+export PVE_INIT_SYSTEM = systemd
+endif
+
 %:
 	dh $@
+
+ifeq ($(PVE_INIT_SYSTEM),lsbservice)
+override_dh_installinit:
+	dh_installinit -pqemu-server --name qmeventd
+	dh_installinit -pqemu-server --name pve-query-machine-capabilities --no-stop-on-upgrade
+endif

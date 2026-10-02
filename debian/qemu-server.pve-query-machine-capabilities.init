@@ -1,0 +1,42 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          pve-query-machine-capabilities
+# Required-Start:    $local_fs
+# Required-Stop:
+# X-Start-Before:    pve-ha-lrm pve-guests
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: PVE Query Machine Capabilities
+### END INIT INFO
+
+# LSB counterpart of pve-query-machine-capabilities.service, only installed by
+# the pkg.qemu-server.lsbservice build (see debian/rules): writes the host's
+# hardware capabilities to /run/qemu-server/host-hw-capabilities.json at boot.
+# It also creates qemu-server's directories in /run, which are created by
+# systemd-tmpfiles from debian/tmpfiles otherwise.
+
+. /lib/lsb/init-functions
+
+NAME=pve-query-machine-capabilities
+HELPER=/usr/libexec/qemu-server/query-machine-capabilities
+
+test -x $HELPER || exit 0
+
+case "$1" in
+    start|restart|force-reload)
+        install -d -m 0750 -o root -g www-data /run/qemu-server /run/qemu-server/efidisk
+        log_action_begin_msg "Querying machine capabilities"
+        $HELPER
+        log_action_end_msg $?
+        ;;
+    stop)
+        ;;
+    status)
+        [ -e /run/qemu-server/host-hw-capabilities.json ] && exit 0
+        exit 3
+        ;;
+    *)
+        echo "Usage: /etc/init.d/$NAME {start|stop|restart|force-reload|status}" >&2
+        exit 3
+        ;;
+esac

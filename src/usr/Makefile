@@ -20,8 +20,10 @@ install: pve-usb.cfg pve-q35.cfg pve-q35-4.0.cfg bootsplash.jpg modules-load.con
 	install -m 0755 pve-bridge-hotplug $(LIBEXECDIR)/pve-bridge-hotplug
 	install -m 0755 pve-bridgedown $(LIBEXECDIR)/pve-bridgedown
 	install -D -m 0755 dbus-vmstate $(LIBEXECDIR)/dbus-vmstate
+ifneq ($(PVE_INIT_SYSTEM),lsbservice)
 	install -d $(LIBSYSTEMDDIR)
 	install -D -m 0644 pve-dbus-vmstate@.service $(LIBSYSTEMDDIR)/system/pve-dbus-vmstate@.service
+endif
 	install -d $(DBUSDIR)
 	install -D -m 0644 org.qemu.VMState1.conf $(DBUSDIR)/system.d/org.qemu.VMState1.conf
 

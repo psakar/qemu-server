@@ -1,5 +1,14 @@
 all:
 
+# Which init system the services are integrated with: 'systemd' installs the
+# systemd units, 'lsbservice' none - debian/rules installs LSB init scripts
+# instead then. Set by debian/rules depending on whether the
+# pkg.qemu-server.lsbservice build profile is active.
+export PVE_INIT_SYSTEM ?= systemd
+ifeq ($(filter $(PVE_INIT_SYSTEM),systemd lsbservice),)
+$(error unsupported PVE_INIT_SYSTEM '$(PVE_INIT_SYSTEM)' (expected 'systemd' or 'lsbservice'))
+endif
+
 .PHONY: install
 install:
 	$(MAKE) -C PVE install

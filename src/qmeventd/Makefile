@@ -20,8 +20,10 @@ docs: qmeventd.8
 install: qmeventd docs
 	install -d $(DESTDIR)/$(SBINDIR)
 	install -m 0755 qmeventd $(DESTDIR)/$(SBINDIR)
+ifneq ($(PVE_INIT_SYSTEM),lsbservice)
 	install -d $(DESTDIR)/$(SERVICEDIR)
 	install -m 0644 qmeventd.service $(DESTDIR)/$(SERVICEDIR)
+endif
 	install -d $(DESTDIR)/$(MANDIR)/man8
 	install -m 0644 qmeventd.8 $(DESTDIR)/$(MANDIR)/man8
 

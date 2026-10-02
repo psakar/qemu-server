@@ -13,8 +13,10 @@ query-machine-capabilities: query-machine-capabilities.c
 install: query-machine-capabilities
 	install -d $(DESTDIR)/$(BINDIR)
 	install -m 0755 query-machine-capabilities $(DESTDIR)$(BINDIR)
+ifneq ($(PVE_INIT_SYSTEM),lsbservice)
 	install -d $(DESTDIR)/$(SERVICEDIR)
 	install -m 0644 pve-query-machine-capabilities.service $(DESTDIR)$(SERVICEDIR)
+endif
 
 .PHONY: clean
 clean:
