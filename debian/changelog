@@ -1,3 +1,11 @@
+qemu-server (9.2.10+devuan1) trixie; urgency=medium
+
+  * build for systemd-free derivatives like Devuan (sysvinit or OpenRC),
+    with the init-system changes of the feature/init-systems-refactoring
+    branch; built with the pkg.qemu-server.lsbservice profile
+
+ -- Petr Sakař <petr.sakar@chare.eu>  Sat, 03 Oct 2026 08:15:11 +0200
+
 qemu-server (9.2.10) trixie; urgency=medium
 
   * partially fix #7801: warn when configuring a CDROM drive with a VirtIO
