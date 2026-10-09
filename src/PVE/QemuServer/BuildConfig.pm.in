@@ -1,0 +1,17 @@
+package PVE::QemuServer::BuildConfig;
+
+# Generated at build time by src/PVE/QemuServer/Makefile from
+# BuildConfig.pm.in - do not edit the generated BuildConfig.pm directly.
+#
+# Build settings as constants, so that code depending on them is compiled out
+# where they're false: e.g. the systemd build (the default) doesn't even
+# contain the code needed for the LSB init scripts' variant.
+
+use strict;
+use warnings;
+
+# PVE_INIT_SYSTEM is 'lsbservice', see src/Makefile and the
+# pkg.qemu-server.lsbservice build profile in debian/rules
+use constant INIT_SYSTEM_LSBSERVICE => @INIT_SYSTEM_LSBSERVICE@;
+
+1;
