@@ -1,3 +1,10 @@
+qemu-server (9.2.10+devuan2) trixie; urgency=medium
+
+  * remove a stopped VM's empty resource scope without systemd (only in the
+    pkg.qemu-server.lsbservice build)
+
+ -- Petr Sakař <petr.sakar@chare.eu>  Fri, 09 Oct 2026 21:25:26 +0200
+
 qemu-server (9.2.10+devuan1) trixie; urgency=medium
 
   * build for systemd-free derivatives like Devuan (sysvinit or OpenRC),
