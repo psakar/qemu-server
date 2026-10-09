@@ -1,4 +1,4 @@
-all:
+all: build-config
 
 # Which init system the services are integrated with: 'systemd' installs the
 # systemd units, 'lsbservice' none - debian/rules installs LSB init scripts
@@ -9,8 +9,12 @@ ifeq ($(filter $(PVE_INIT_SYSTEM),systemd lsbservice),)
 $(error unsupported PVE_INIT_SYSTEM '$(PVE_INIT_SYSTEM)' (expected 'systemd' or 'lsbservice'))
 endif
 
+.PHONY: build-config
+build-config:
+	$(MAKE) -C PVE/QemuServer BuildConfig.pm
+
 .PHONY: install
-install:
+install: build-config
 	$(MAKE) -C PVE install
 	$(MAKE) -C bin install
 	$(MAKE) -C qmeventd install
@@ -18,7 +22,7 @@ install:
 	$(MAKE) -C usr install
 
 .PHONY: test
-test:
+test: build-config
 	$(MAKE) -C test
 	$(MAKE) -C bin $@
 
@@ -26,6 +30,7 @@ test:
 clean:
 	$(MAKE) -C test $@
 	$(MAKE) -C bin $@
+	$(MAKE) -C PVE/QemuServer $@
 
 .PHONY: distclean
 distclean: clean

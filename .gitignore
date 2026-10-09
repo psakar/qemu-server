@@ -11,3 +11,4 @@ build
 qm.bash-completion
 sparsecp
 vmtar
+/src/PVE/QemuServer/BuildConfig.pm

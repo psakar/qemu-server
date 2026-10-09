@@ -25,6 +25,17 @@ endif
 %:
 	dh $@
 
+# lsbservice:Depends: what only the lsbservice variant's code needs, e.g.
+# PVE::InitSystem::remove_empty_scope (see vm_stop_cleanup), which only the
+# LSBService backend of libpve-common-perl has
+ifeq ($(PVE_INIT_SYSTEM),lsbservice)
+override_dh_gencontrol:
+	dh_gencontrol -- '-Vlsbservice:Depends=libpve-common-perl (>= 9.2.3+devuan4)'
+else
+override_dh_gencontrol:
+	dh_gencontrol -- -Vlsbservice:Depends=
+endif
+
 ifeq ($(PVE_INIT_SYSTEM),lsbservice)
 override_dh_installinit:
 	dh_installinit -pqemu-server --name qmeventd

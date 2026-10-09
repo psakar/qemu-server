@@ -56,6 +56,7 @@ use PVE::QemuMigrate::Helpers;
 use PVE::QemuServer::Agent qw(get_qga_key parse_guest_agent qga_check_running);
 use PVE::QemuServer::Blockdev;
 use PVE::QemuServer::BlockJob;
+use PVE::QemuServer::BuildConfig;
 use PVE::QemuServer::Cfg2Cmd;
 use PVE::QemuServer::Helpers
     qw(config_aware_timeout get_iscsi_initiator_name get_host_arch min_version kvm_user_version windows_version);
@@ -6177,6 +6178,13 @@ sub vm_stop_cleanup {
         }
 
         cleanup_pci_devices($vmid, $conf);
+
+        # Without systemd, nothing removes the VM's emptied scope (see
+        # vm_start_nolock) by itself. Compiled out of the systemd build.
+        if (PVE::QemuServer::BuildConfig::INIT_SYSTEM_LSBSERVICE) {
+            eval { PVE::InitSystem::remove_empty_scope("$vmid.scope") };
+            warn $@ if $@;
+        }
 
         vmconfig_apply_pending($vmid, $conf, $storecfg) if $apply_pending_changes;
     };
