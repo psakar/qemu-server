@@ -14,7 +14,9 @@
 # pkg.qemu-server.lsbservice build (see debian/rules). Like the unit, it starts
 # before and stops after pve-ha-lrm and pve-guests, so that it handles the
 # events of guests stopped at shutdown. qmeventd daemonizes itself and doesn't
-# write a pid file, so it's found by its executable.
+# write a pid file, so it's found by its executable. Its daemon(0, 1) keeps
+# stdin, the console at boot, so it's started with stdin from /dev/null, as
+# the unit's.
 
 . /lib/lsb/init-functions
 
@@ -32,7 +34,7 @@ do_stop() {
 case "$1" in
     start)
         log_daemon_msg "Starting $DESC" "$NAME"
-        start-stop-daemon --start --quiet --oknodo --exec $DAEMON -- $SOCKET
+        start-stop-daemon --start --quiet --oknodo --exec $DAEMON -- $SOCKET </dev/null
         log_end_msg $?
         ;;
     stop)
@@ -42,7 +44,7 @@ case "$1" in
         ;;
     restart|force-reload)
         log_daemon_msg "Restarting $DESC" "$NAME"
-        do_stop && start-stop-daemon --start --quiet --exec $DAEMON -- $SOCKET
+        do_stop && start-stop-daemon --start --quiet --exec $DAEMON -- $SOCKET </dev/null
         log_end_msg $?
         ;;
     status)
