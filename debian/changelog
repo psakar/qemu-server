@@ -1,3 +1,10 @@
+qemu-server (9.2.10+devuan3) trixie; urgency=medium
+
+  * lsbservice variant: start qmeventd with stdin from /dev/null, as
+    systemd does, instead of keeping the console
+
+ -- Petr Sakař <petr.sakar@chare.eu>  Sun, 11 Oct 2026 20:02:39 +0200
+
 qemu-server (9.2.10+devuan2) trixie; urgency=medium
 
   * remove a stopped VM's empty resource scope without systemd (only in the
