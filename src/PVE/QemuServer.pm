@@ -5603,15 +5603,9 @@ sub vm_start_nolock {
         }
 
         eval {
-            run_command(
-                [
-                    '/bin/systemctl', 'kill', '--kill-whom=all', '--signal=KILL', "$vmid.scope",
-                ],
-                %silence_std_outs,
-                noerr => 1,
-                timeout => 10,
-            );
-            PVE::Systemd::wait_for_unit_removed("$vmid.scope", 20);
+            # errors ignored, e.g. if there's no scope (anymore)
+            eval { PVE::InitSystem::kill_scope("$vmid.scope", 'KILL') };
+            PVE::InitSystem::wait_for_unit_removed("$vmid.scope", 20);
         };
         warn "failed to clean up VM start scope - $@" if $@;
     };
